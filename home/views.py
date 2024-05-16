@@ -58,3 +58,6 @@ def logout(request):
     auth_logout(request)
     messages.warning(request, 'Logged out successfully')
     return redirect('homepage')
+
+def delete(request):
+    pass

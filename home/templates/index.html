@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} {{ title }} {% endblock title %}  
+{% block title %} {{ title }} {% endblock title %}
 
 {% block body_content %}
 
@@ -17,13 +17,21 @@
 
 {% if user.is_authenticated %}
 
-<p> Hello <strong>{{ user.username }}</strong>. Welcome to Yet another ToDo</p>
+<div class="mt-5">
+    <p> Hello <strong>{{ user.username }}</strong>. Welcome to Yet another ToDo</p>
+</div>
+
+
 
 {% else %}
+<div class="mt-5">
+    <h4>yet another to do list</h4>
+    <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iure, voluptatibus, amet adipisci assumenda doloribus
+        recusandae magni illo aliquid error iusto mollitia
+        temporibus harum explicabo ipsum? Laudantium adipisci illo ducimus nesciunt!
 
-<h4>yet another to do list</h4>
-<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iure, voluptatibus, amet adipisci assumenda doloribus recusandae magni illo aliquid error iusto mollitia temporibus harum explicabo ipsum? Laudantium adipisci illo ducimus nesciunt!</p>
-
+    </p>
+</div>
 {% endif %}
 
 {% endblock body_content %}
