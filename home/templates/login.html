@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %} {{ title }} {% endblock title %}
+
+{% block body_content %}
+
+{% if messages %}
+    {% for m in messages %}
+        <div class="container">
+            <div class="alert alert-dismissible fade show border border-{{m.tags}}-subtle bg-{{m.tags}}-subtle" role="alert">
+                <p class="m-0 px-3">{{ m }}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="mt-5">
+    <div class="row justify-content-center">
+        <div class="col-4 px-0">
+            <img src="https://images.pexels.com/photos/20041870/pexels-photo-20041870/free-photo-of-shadowed-alley-in-turkey.jpeg?auto=compress&cs=tinysrgb&w=600"
+                alt="https://images.pexels.com/photos/1528348/pexels-photo-1528348.jpeg?auto=compress&cs=tinysrgb&w=600"
+                class="img-fluid rounded-start">
+        </div>
+        <div class="col-4 border rounded-end px-0">
+            <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                <h3>Login</h3>
+                <form action="{% url "login" %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <br>
+                <p>Don't have an account <a href="{% url "create-account" %}">create new account</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock body_content %}
