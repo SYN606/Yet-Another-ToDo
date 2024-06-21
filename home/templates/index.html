@@ -19,6 +19,20 @@
 
 <div class="mt-5">
     <p> Hello <strong>{{ user.username }}</strong>. Welcome to Yet another ToDo</p>
+    
+    
+    <form action="{% url 'create_todo' %}" method="post">
+        {% csrf_token %}
+
+        <label for="title" class="form-label">Enter the title</label>
+        <input type="text" class="form-control is-valid" id="title" name="title">
+    
+        <label for="title" class="form-label">Summary</label>
+        <input type="text" class="form-control is-valid" id="title" name="todo-data">
+
+        <button class="btn btn-primary mt-5" type="submit">Submit</button>
+    </form>
+
 </div>
 
 
@@ -31,6 +45,7 @@
         temporibus harum explicabo ipsum? Laudantium adipisci illo ducimus nesciunt!
 
     </p>
+    <p>Seems like you don't have account. <strong><a href="{% url "create-account" %}">Create new Account</a></strong> to make a todo. if you've already <a href="{% url "login" %}">Login Here</a>.</p>
 </div>
 {% endif %}
 

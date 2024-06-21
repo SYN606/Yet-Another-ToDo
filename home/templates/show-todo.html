@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %} {{ title }} {% endblock title %}
+
+{% block body_content %}
+
+<table class="table table-striped mt-5">
+    <thead>
+        <tr>
+            <th scope="col">Sr. No.</th>
+            <th scope="col">Title</th>
+            <th scope="col">Description</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for todo in todos %}
+            <tr>
+                <th scope="row">{{ todo.id }}</th>
+                <td>{{ todo.title }}</td>
+                <td>{{ todo.description }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock body_content %}
