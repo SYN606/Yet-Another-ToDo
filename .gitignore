@@ -135,5 +135,8 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
+# migrations
+migrations/
+
 # database
 db.sqlite3

@@ -1,96 +1,95 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
+{% load tailwind_tags %}
 
-{% block title %} {{ title }} {% endblock title %}
+
+{% block title %}
+  {{ title }}
+{% endblock %}
 
 {% block body_content %}
+  <!-- Flash Messages -->
+  {% if messages %}
+    <div id="flash-messages" class="space-y-2">
+      {% for m in messages %}
+        <div class="flex items-center justify-between border-l-4 p-4 rounded-md 
+                  {% if m.tags == 'success' %}
+            
+                      border-green-500 bg-green-100 text-green-800
 
-<!-- Flash Messages -->
-{% if messages %}
-{% for m in messages %}
-<div class="container my-4" x-data="{ show: true }" x-show="show" x-transition>
-    <div class="flex items-center justify-between border-l-4 p-4 rounded-md 
-                {% if m.tags == 'success' %}
-                    border-green-500 bg-green-100 text-green-800
-                {% elif m.tags == 'error' %}
-                    border-red-500 bg-red-100 text-red-800
-                {% elif m.tags == 'warning' %}
-                    border-yellow-500 bg-yellow-100 text-yellow-800
-                {% else %}
-                    border-blue-500 bg-blue-100 text-blue-800
-                {% endif %}
-                dark:bg-gray-800 dark:border-{{ m.tags }}-400 dark:text-{{ m.tags }}-300">
-        <p class="flex-1">{{ m }}</p>
-        <button @click="show = false" class="ml-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-            <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+          {% elif m.tags == 'error' %}
+            
+                      border-red-500 bg-red-100 text-red-800
+
+          {% elif m.tags == 'warning' %}
+            
+                      border-yellow-500 bg-yellow-100 text-yellow-800
+
+          {% else %}
+            
+                      border-blue-500 bg-blue-100 text-blue-800
+
+          {% endif %}
+                  dark:bg-gray-800 dark:border-{{ m.tags }}-400 dark:text-{{ m.tags }}-300"
+          hx-trigger="load delay:3s"
+          hx-swap="outerHTML"
+          hx-target="this">
+          <p class="flex-1">{{ m }}</p>
+          <button class="ml-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" hx-get="#" hx-swap="outerHTML"><i class="fas fa-times w-5 h-5"></i></button>
+        </div>
+      {% endfor %}
     </div>
-</div>
-{% endfor %}
-{% endif %}
+  {% endif %}
 
-{% if user.is_authenticated %}
+  {% if user.is_authenticated %}
+    <div class="mt-8 max-w-xl mx-auto bg-white p-6 rounded-md shadow-md dark:bg-gray-800">
+      <p class="text-lg mb-4 text-gray-700 dark:text-gray-200">
+        Hello <strong class="text-indigo-500">{{ user.username }}</strong>. Welcome to Yet Another ToDo.
+      </p>
 
-<div class="mt-8 max-w-xl mx-auto bg-white p-6 rounded-md shadow-md dark:bg-gray-800">
-    <p class="text-lg mb-4 text-gray-700 dark:text-gray-200">
-        Hello <strong class="text-indigo-500">{{ user.username }}</strong>. Welcome to Yet Another ToDo
-    </p>
-
-    <!-- ToDo Form -->
-    <form action="{% url 'create_todo' %}" method="post" class="space-y-4">
+      <form action="{% url 'create_todo' %}" method="post" class="space-y-4" hx-post="{% url 'create_todo' %}" hx-target="#todo-list" hx-swap="beforeend">
         {% csrf_token %}
-
         <div>
-            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Enter the
-                title</label>
-            <input type="text" id="title" name="title"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                required>
+          <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Enter the title</label>
+          <input type="text" id="title" name="title" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required />
         </div>
 
         <div>
-            <label for="todo-data" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Summary</label>
-            <input type="text" id="todo-data" name="todo-data"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                required>
+          <label for="todo-data" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Summary</label>
+          <input type="text" id="todo-data" name="todo-data" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required />
         </div>
 
-        <button type="submit"
-            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
-            Submit
-        </button>
-    </form>
-</div>
+        <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"><i class="fas fa-paper-plane mr-2"></i> Submit</button>
+      </form>
+    </div>
 
-{% else %}
-<div class="mt-8 max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md dark:bg-gray-800">
-  <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-    <i data-lucide="check-circle" class="w-7 h-7 text-indigo-500"></i>
-    Organise Your Tasks with Ease
-  </h2>
+    <!-- ToDo List Section -->
+    <div id="todo-list" class="mt-6 max-w-xl mx-auto space-y-3">
+      {% include 'partials/todo_list.html' %}
+    </div>
+  {% else %}
+    <div class="mt-8 max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md dark:bg-gray-800">
+      <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+        <i class="fas fa-check-circle text-indigo-500"></i>
+        Organise Your Tasks with Ease
+      </h2>
 
-  <p class="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
-    Welcome to <span class="font-semibold text-indigo-600 dark:text-indigo-400">Yet Another ToDo</span> – 
-    your simple, elegant solution for managing daily tasks and staying productive. Create, track, and manage your to-do items seamlessly in one place.
-  </p>
+      <p class="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+        Welcome to <span class="font-semibold text-indigo-600 dark:text-indigo-400">Yet Another ToDo</span> – your simple, elegant solution for managing daily tasks and staying productive.
+      </p>
 
-  <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-    Whether you're planning your workday, tracking personal goals, or organising team tasks, 
-    our minimal and distraction-free interface helps you focus on what really matters.
-  </p>
+      <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">Whether you're planning your workday, tracking personal goals, or organising team tasks, our minimal and distraction-free interface helps you focus on what really matters.</p>
 
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <a href="{% url 'create-account' %}" 
-      class="inline-flex items-center justify-center px-5 py-3 bg-indigo-600 text-white font-medium rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition">
-      <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i>
-      Create New Account
-    </a>
-    <p class="text-gray-600 dark:text-gray-400 text-sm">
-      Already have an account?
-      <a href="{% url 'login' %}" class="text-indigo-600 hover:underline dark:text-indigo-400">Login here</a>.
-    </p>
-  </div>
-</div>
-
-{% endif %}
-
-{% endblock body_content %}
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <a href="{% url 'create-account' %}" class="inline-flex items-center justify-center px-5 py-3 bg-indigo-600 text-white font-medium rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition">
+          <i class="fas fa-user-plus mr-2"></i>
+          Create New Account
+        </a>
+        <p class="text-gray-600 dark:text-gray-400 text-sm">
+          Already have an account?
+          <a href="{% url 'login' %}" class="text-indigo-600 hover:underline dark:text-indigo-400">Login here</a>.
+        </p>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

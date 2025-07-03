@@ -73,6 +73,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'home.CustomUser'
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Kolkata'
@@ -90,3 +92,46 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files (if you're handling uploads later)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+CKEDITOR_5_CONFIGS = {
+    "default": {
+        "toolbar": [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "underline",
+            "link",
+            "|",
+            "bulletedList",
+            "numberedList",
+            "|",
+            "blockQuote",
+            "codeBlock",
+            "|",
+            "undo",
+            "redo",
+        ],
+    },
+    "extends": {
+        "toolbar": [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "underline",
+            "link",
+            "|",
+            "bulletedList",
+            "numberedList",
+            "todoList",
+            "|",
+            "blockQuote",
+            "codeBlock",
+            "imageUpload",
+            "|",
+            "undo",
+            "redo",
+        ],
+    },
+}

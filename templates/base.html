@@ -1,5 +1,5 @@
 {% load static %}
-{% load static tailwind_tags %}
+{% load tailwind_tags %}
 
 <!DOCTYPE html>
 <html lang="en" class="{% if request.COOKIES.theme == 'dark' %}dark{% endif %}">
@@ -15,13 +15,41 @@
     {% tailwind_css %}
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
 
-
     <style>
       html {
         transition: background-color 0.3s, color 0.3s;
       }
     </style>
   </head>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement
+      const themeIcon = document.getElementById('theme-icon')
+      const mobileIcon = document.getElementById('theme-icon-mobile')
+    
+      const isDark = html.classList.toggle('dark')
+    
+      // Set cookie for persistence
+      document.cookie = `theme=${isDark ? 'dark' : 'light'}; path=/; max-age=31536000`
+    
+      // Update icons
+      if (isDark) {
+        themeIcon.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>'
+        mobileIcon.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>'
+      } else {
+        themeIcon.innerHTML = '<i class="fas fa-moon text-gray-300"></i>'
+        mobileIcon.innerHTML = '<i class="fas fa-moon text-gray-300"></i>'
+      }
+    }
+    
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu')
+      const icon = document.getElementById('mobile-menu-icon')
+      menu.classList.toggle('hidden')
+      icon.innerHTML = menu.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>'
+    }
+  </script>
 
   <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
     {% include 'navbar.html' %}
@@ -35,20 +63,34 @@
     <footer class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">&copy; {{ now.year }} Yet Another ToDo. All rights reserved.</footer>
 
     <script>
-      function toggleTheme() {
-        const html = document.documentElement
-        html.classList.toggle('dark')
-        document.cookie = 'theme=' + (html.classList.contains('dark') ? 'dark' : 'light') + '; path=/'
+      const html = document.documentElement
+      const themeCookie = document.cookie.split('; ').find((row) => row.startsWith('theme='))
+      if (themeCookie) {
+        const theme = themeCookie.split('=')[1]
+        if (theme === 'dark') {
+          html.classList.add('dark')
+          setThemeIcon(true)
+        } else {
+          html.classList.remove('dark')
+          setThemeIcon(false)
+        }
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        html.classList.toggle('dark', prefersDark)
+        setThemeIcon(prefersDark)
       }
-    </script>
-
-    <script>
+      
       function toggleTheme() {
-        const html = document.documentElement
         const isDark = html.classList.toggle('dark')
-        document.cookie = 'theme=' + (isDark ? 'dark' : 'light') + '; path=/'
-        const icon = isDark ? '<i class="fas fa-sun text-yellow-400"></i>' : '<i class="fas fa-moon text-gray-300"></i>'
-        document.querySelectorAll('#theme-icon, #theme-icon-mobile').forEach((el) => (el.innerHTML = icon))
+        document.cookie = `theme=${isDark ? 'dark' : 'light'}; path=/; max-age=31536000`
+        setThemeIcon(isDark)
+      }
+      
+      function setThemeIcon(isDark) {
+        const iconHTML = isDark ? '<i class="fas fa-sun text-yellow-400"></i>' : '<i class="fas fa-moon text-gray-300"></i>'
+        document.querySelectorAll('#theme-icon, #theme-icon-mobile').forEach((el) => {
+          el.innerHTML = iconHTML
+        })
       }
       
       function toggleMobileMenu() {

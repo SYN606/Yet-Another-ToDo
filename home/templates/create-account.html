@@ -1,50 +1,84 @@
 {% extends "base.html" %}
-{% block title %} {{ title }} {% endblock title %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block body_content %}
 
-{% if messages %}
+  {% if messages %}
     {% for m in messages %}
-        <div class="container">
-            <div class="alert alert-dismissible fade show border border-{{m.tags}}-subtle bg-{{m.tags}}-subtle" role="alert">
-                <p class="m-0 px-3">{{ m }}</p>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+      <div class="max-w-md mx-auto mt-4">
+        <div class="flex items-center justify-between border-l-4 p-3 rounded 
+                  {% if m.tags == 'success' %}
+            
+                    border-green-500 bg-green-50 text-green-800
+
+          {% elif m.tags == 'error' %}
+            
+                    border-red-500 bg-red-50 text-red-800
+
+          {% elif m.tags == 'warning' %}
+            
+                    border-yellow-500 bg-yellow-50 text-yellow-800
+
+          {% else %}
+            
+                    border-blue-500 bg-blue-50 text-blue-800
+
+          {% endif %}">
+          <p class="flex-1">{{ m }}</p>
+          <button onclick="this.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><i class="fas fa-times"></i></button>
         </div>
+      </div>
     {% endfor %}
-{% endif %}
+  {% endif %}
 
-<div class="mt-5">
-    <div class="row justify-content-center">
-        <div class="col-4 px-0">
-            <img src="https://images.pexels.com/photos/20430264/pexels-photo-20430264/free-photo-of-a-snow-covered-rock-with-a-blue-sky.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-                alt="https://images.pexels.com/photos/13574112/pexels-photo-13574112.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load"
-                class="img-fluid rounded-start">
-        </div>
-        <div class="col-4 border rounded-end px-0">
-            <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                <h3 class="mb-5">Create an Account</h3>
-                <form action="{% url "create-account" %}" method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="full-name" class="form-label">Enter your full name </label>
-                        <input type="text" class="form-control" id="full-name" name="f_name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username">
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-                
-                <p class="mt-3">Already have an account <a href="{% url "login" %}">Login</a> here.</p>
-            </div>
-        </div>
-    </div>
+<div class="my-10 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+  <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow p-6 sm:p-8">
+    <h1 class="text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">Create Account</h1>
+    <p class="text-center text-gray-500 dark:text-gray-400 mb-4">Start organising your tasks now</p>
+
+    <form action="{% url 'create-account' %}" 
+          method="post" 
+          hx-post="{% url 'create-account' %}" 
+          hx-target="body" 
+          hx-swap="outerHTML"
+          class="space-y-4">
+      {% csrf_token %}
+
+      <!-- Full Name -->
+      <div class="relative">
+        <input type="text" name="f_name" placeholder="Full Name" required
+               class="w-full border rounded-lg px-3 py-2 bg-transparent text-gray-900 dark:text-gray-100 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+      </div>
+
+      <!-- Phone -->
+      <div class="relative">
+        <input type="tel" name="phone" placeholder="Phone (+91XXXXXXXXXX)" pattern="^\+91[0-9]{10}$" required
+               class="w-full border rounded-lg px-3 py-2 bg-transparent text-gray-900 dark:text-gray-100 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+      </div>
+
+      <!-- Username -->
+      <div class="relative">
+        <input type="text" name="username" placeholder="Username" required
+               class="w-full border rounded-lg px-3 py-2 bg-transparent text-gray-900 dark:text-gray-100 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+      </div>
+
+      <!-- Password -->
+      <div class="relative">
+        <input type="password" name="password" placeholder="Password (min 6 chars)" minlength="6" required
+               class="w-full border rounded-lg px-3 py-2 bg-transparent text-gray-900 dark:text-gray-100 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit"
+              class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold">
+        <i class="fas fa-user-plus mr-2"></i> Sign Up
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">
+      Already have an account? 
+      <a href="{% url 'login' %}" class="text-indigo-600 hover:underline dark:text-indigo-400">Login</a>.
+    </p>
+  </div>
 </div>
-
-{% endblock body_content %}
+{% endblock %}

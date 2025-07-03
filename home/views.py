@@ -1,88 +1,113 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User, auth  # type: ignore
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
+from .models import CustomUser, Todo
 from .decorators import *  # noqa: F403
-from django.contrib.auth import logout as auth_logout
-from .models import Todo
+
 
 def homepage(request):
-    data = {"title": "Homepage"}
-    return render(request, "index.html", data)
+    return render(request, "index.html", {"title": "Homepage"})
 
 
 @check_authenticated_user  # noqa: F405
 def login(request):
-    data = {"title": "Login"}
+    """
+    User login view
+    """
+    context = {"title": "Login"}
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-        user = auth.authenticate(
-            username=username,
-            password=password
-        )
+        user = authenticate(username=username, password=password)
 
-        if user is not None:
-            auth.login(request, user)
-
+        if user:
+            auth_login(request, user)
             messages.success(request, "You're now logged in.")
             return redirect("homepage")
         else:
-            messages.info(request, "Invalid Credentials")
+            messages.error(request, "Invalid username or password.")
             return redirect("login")
-    else:
-        return render(request, "login.html", data)
+
+    return render(request, "login.html", context)
 
 
+@login_required
 def create_todo(request):
+    """
+    Create a new ToDo
+    """
     if request.method == "POST":
-        title = request.POST["title"]
-        todo_data = request.POST["todo-data"]
+        title = request.POST.get("title")
+        todo_data = request.POST.get("todo-data")
 
-        new_todo = Todo(
-            title=title,
-            description=todo_data,
-            user = request.user
-        )
+        Todo.objects.create(title=title,
+                            description=todo_data,
+                            user=request.user)
+        messages.success(request, "ToDo created successfully.")
+        return redirect("show_todo")
 
-        new_todo.save()
-        return redirect("homepage")
+    return render(request, "create-todo.html", {"title": "Create ToDo"})
 
+
+@login_required
 def show_todo(request):
-    todo = Todo.objects.filter(user = request.user)
-
-    data = {
-        "title": "Show all Todo",
-        "todos" : todo 
-    }
-    return render(request, 'show-todo.html', data)
+    """
+    Show all ToDos for the logged-in user
+    """
+    todos = Todo.objects.filter(user=request.user)
+    return render(request, "show-todo.html", {
+        "title": "Show all ToDos",
+        "todos": todos
+    })
 
 
 @check_authenticated_user  # noqa: F405
 def create_user(request):
-    data = {
-        "title": "Create User Account"
-    }
+    """
+    Create a new user account
+    """
+    context = {"title": "Create Account"}
     if request.method == "POST":
-        full_name = request.POST["f_name"]
-        username = request.POST["username"]
-        password = request.POST["password"]
+        full_name = request.POST.get("f_name")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-        new_user = User.objects.create_user(full_name, username, password)  # type: ignore
+        if CustomUser.objects.filter(username=username).exists():
+            messages.warning(request, "Username already taken.")
+            return redirect("create-account")
+
+        new_user = CustomUser.objects.create_user(username=username,
+                                                  password=password,
+                                                  full_name=full_name)
         new_user.save()
 
-        messages.success(request, "Your account has been created successfully.")
+        messages.success(request,
+                         "Account created successfully. Please log in.")
         return redirect("login")
 
-    else:
-        return render(request, "create-account.html", data)
+    return render(request, "create-account.html", context)
 
 
+@login_required
 def logout(request):
+    """
+    Log out the current user
+    """
     auth_logout(request)
-    messages.warning(request, 'Logged out successfully')
-    return redirect('homepage')
+    messages.warning(request, "Logged out successfully.")
+    return redirect("homepage")
 
 
-def delete(request):
-    pass
+@login_required
+def delete_account(request):
+    """
+    Delete the currently logged-in user's account
+    """
+    if request.method == "POST":
+        request.user.delete()
+        messages.success(request, "Your account has been deleted.")
+        return redirect("homepage")
+
+    return render(request, "delete-account.html", {"title": "Delete Account"})
