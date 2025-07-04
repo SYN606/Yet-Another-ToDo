@@ -3,13 +3,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from .models import CustomUser, Todo
-from .decorators import * 
+from .decorators import *
+from .forms import TodoForm
+
 
 def homepage(request):
-    return render(request, "index.html", {"title": "Homepage"})
+    form = TodoForm()
+    context = {"title": "Homepage", "form": form}
+    return render(request, "index.html", context)
 
 
-@check_authenticated_user   # type: ignore
+@check_authenticated_user  # type: ignore
 def login(request):
     context = {"title": "Login"}
     if request.method == "POST":
@@ -29,7 +33,7 @@ def login(request):
     return render(request, "login.html", context)
 
 
-@check_authenticated_user  # type: ignore 
+@check_authenticated_user  # type: ignore
 def create_user(request):
     context = {"title": "Create Account"}
     if request.method == "POST":
