@@ -1,20 +1,16 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from .models import CustomUser, Todo
-from .decorators import *  # noqa: F403
-
+from .decorators import * 
 
 def homepage(request):
     return render(request, "index.html", {"title": "Homepage"})
 
 
-@check_authenticated_user  # noqa: F405
+@check_authenticated_user   # type: ignore
 def login(request):
-    """
-    User login view
-    """
     context = {"title": "Login"}
     if request.method == "POST":
         username = request.POST.get("username")
@@ -33,41 +29,8 @@ def login(request):
     return render(request, "login.html", context)
 
 
-@login_required
-def create_todo(request):
-    """
-    Create a new ToDo
-    """
-    if request.method == "POST":
-        title = request.POST.get("title")
-        todo_data = request.POST.get("todo-data")
-
-        Todo.objects.create(title=title,
-                            description=todo_data,
-                            user=request.user)
-        messages.success(request, "ToDo created successfully.")
-        return redirect("show_todo")
-
-    return render(request, "create-todo.html", {"title": "Create ToDo"})
-
-
-@login_required
-def show_todo(request):
-    """
-    Show all ToDos for the logged-in user
-    """
-    todos = Todo.objects.filter(user=request.user)
-    return render(request, "show-todo.html", {
-        "title": "Show all ToDos",
-        "todos": todos
-    })
-
-
-@check_authenticated_user  # noqa: F405
+@check_authenticated_user  # type: ignore 
 def create_user(request):
-    """
-    Create a new user account
-    """
     context = {"title": "Create Account"}
     if request.method == "POST":
         full_name = request.POST.get("f_name")
@@ -92,12 +55,77 @@ def create_user(request):
 
 @login_required
 def logout(request):
-    """
-    Log out the current user
-    """
     auth_logout(request)
     messages.warning(request, "Logged out successfully.")
     return redirect("homepage")
+
+
+@login_required
+def create_todo(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        todo_data = request.POST.get("todo-data")
+
+        Todo.objects.create(title=title,
+                            description=todo_data,
+                            user=request.user)
+        messages.success(request, "ToDo created successfully.")
+        return redirect("show_todo")
+
+    return render(request, "show-todo.html", {"title": "Create ToDo"})
+
+
+@login_required
+def show_todo(request):
+    todos = Todo.objects.filter(user=request.user)
+    return render(request, "show-todo.html", {
+        "title": "Show all ToDos",
+        "todos": todos
+    })
+
+
+@login_required
+def edit_todo(request, todo_id):
+    """
+    Edit an existing ToDo
+    """
+    todo = get_object_or_404(Todo, id=todo_id, user=request.user)
+
+    if request.method == "POST":
+        todo.title = request.POST.get("title")
+        todo.description = request.POST.get("todo-data")
+        todo.save()
+        messages.success(request, "ToDo updated successfully.")
+        return redirect("show_todo")
+
+    return render(request, "edit-todo.html", {
+        "todo": todo,
+        "title": "Edit ToDo"
+    })
+
+
+@login_required
+def delete_todo(request, todo_id):
+    """
+    Delete a ToDo
+    """
+    todo = get_object_or_404(Todo, id=todo_id, user=request.user)
+    todo.delete()
+    messages.warning(request, "ToDo deleted successfully.")
+    return redirect("show_todo")
+
+
+@login_required
+def toggle_todo(request, todo_id):
+    """
+    Toggle completed/incomplete status
+    """
+    todo = get_object_or_404(Todo, id=todo_id, user=request.user)
+    todo.completed = not todo.completed
+    todo.save()
+    status = "completed" if todo.completed else "marked as incomplete"
+    messages.info(request, f"ToDo {status}.")
+    return redirect("show_todo")
 
 
 @login_required
