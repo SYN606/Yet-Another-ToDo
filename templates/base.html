@@ -1,106 +1,146 @@
 {% load static %}
-{% load tailwind_tags %}
 
-<!DOCTYPE html>
-<html lang="en" class="{% if request.COOKIES.theme == 'dark' %}dark{% endif %}">
+<!doctype html>
+<html
+  lang="en"
+  x-data="{ darkMode: false, mobileMenu: false }"
+  x-init="
+        darkMode =
+            localStorage.theme === 'dark' ||
+            (!('theme' in localStorage) &&
+                window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+        $watch('darkMode', value => {
+            localStorage.theme = value ? 'dark' : 'light'
+            document.documentElement.classList.toggle('dark', value)
+        })
+
+        document.documentElement.classList.toggle('dark', darkMode)
+    "
+  :class="{ 'dark': darkMode }"
+  class="scroll-smooth"
+>
   <head>
     <meta charset="utf-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>
-      Yet Another ToDo |{% block title %}
 
-      {% endblock %}
-    </title>
+    <title>Yet Another ToDo | {% block title %} {% endblock %}</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    {% tailwind_css %}
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: "#6366f1",
+                soft: "#818cf8",
+              },
+
+              accent: {
+                DEFAULT: "#06b6d4",
+                soft: "#22d3ee",
+              },
+            },
+
+            boxShadow: {
+              glow: "0 0 40px rgba(99,102,241,0.35)",
+            },
+
+            animation: {
+              float: "float 8s ease-in-out infinite",
+            },
+
+            keyframes: {
+              float: {
+                "0%, 100%": {
+                  transform: "translateY(0px)",
+                },
+
+                "50%": {
+                  transform: "translateY(-20px)",
+                },
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- AlpineJS -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
 
     <style>
-      html {
-        transition: background-color 0.3s, color 0.3s;
+      * {
+        transition:
+          background-color 0.25s ease,
+          color 0.25s ease,
+          border-color 0.25s ease,
+          transform 0.2s ease;
+      }
+
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: Inter, system-ui, sans-serif;
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(120, 120, 120, 0.4);
+        border-radius: 999px;
       }
     </style>
   </head>
 
-  <script>
-    function toggleTheme() {
-      const html = document.documentElement
-      const themeIcon = document.getElementById('theme-icon')
-      const mobileIcon = document.getElementById('theme-icon-mobile')
-    
-      const isDark = html.classList.toggle('dark')
-    
-      // Set cookie for persistence
-      document.cookie = `theme=${isDark ? 'dark' : 'light'}; path=/; max-age=31536000`
-    
-      // Update icons
-      if (isDark) {
-        themeIcon.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>'
-        mobileIcon.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>'
-      } else {
-        themeIcon.innerHTML = '<i class="fas fa-moon text-gray-300"></i>'
-        mobileIcon.innerHTML = '<i class="fas fa-moon text-gray-300"></i>'
-      }
-    }
-    
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobile-menu')
-      const icon = document.getElementById('mobile-menu-icon')
-      menu.classList.toggle('hidden')
-      icon.innerHTML = menu.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>'
-    }
-  </script>
+  <body
+    class="min-h-screen overflow-x-hidden bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100"
+  >
+    <!-- Background -->
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div
+        class="absolute -left-24 top-0 h-72 w-72 rounded-full bg-primary/20 blur-3xl sm:h-96 sm:w-96 animate-float"
+      ></div>
 
-  <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
-    {% include 'navbar.html' %}
+      <div
+        class="absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-accent/20 blur-3xl sm:h-96 sm:w-96 animate-float"
+      ></div>
+    </div>
 
-    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-      {% block body_content %}
+    <!-- Page Wrapper -->
+    <div class="flex min-h-screen flex-col">
+      <!-- Navbar -->
+      {% include "navbar.html" %}
 
-      {% endblock %}
-    </main>
+      <!-- Main Content -->
+      <main class="flex-1 w-full">
+        <div
+          class="mx-auto h-full w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+        >
+          {% block body_content %} {% endblock %}
+        </div>
+      </main>
 
-    <footer class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">&copy; {{ now.year }} Yet Another ToDo. All rights reserved.</footer>
-
-    <script>
-      const html = document.documentElement
-      const themeCookie = document.cookie.split('; ').find((row) => row.startsWith('theme='))
-      if (themeCookie) {
-        const theme = themeCookie.split('=')[1]
-        if (theme === 'dark') {
-          html.classList.add('dark')
-          setThemeIcon(true)
-        } else {
-          html.classList.remove('dark')
-          setThemeIcon(false)
-        }
-      } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        html.classList.toggle('dark', prefersDark)
-        setThemeIcon(prefersDark)
-      }
-      
-      function toggleTheme() {
-        const isDark = html.classList.toggle('dark')
-        document.cookie = `theme=${isDark ? 'dark' : 'light'}; path=/; max-age=31536000`
-        setThemeIcon(isDark)
-      }
-      
-      function setThemeIcon(isDark) {
-        const iconHTML = isDark ? '<i class="fas fa-sun text-yellow-400"></i>' : '<i class="fas fa-moon text-gray-300"></i>'
-        document.querySelectorAll('#theme-icon, #theme-icon-mobile').forEach((el) => {
-          el.innerHTML = iconHTML
-        })
-      }
-      
-      function toggleMobileMenu() {
-        const menu = document.getElementById('mobile-menu')
-        const icon = document.getElementById('mobile-menu-icon')
-        menu.classList.toggle('hidden')
-        icon.innerHTML = menu.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>'
-      }
-    </script>
+      <!-- Footer -->
+      {% include "footer.html" %}
+    </div>
   </body>
 </html>
