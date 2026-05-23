@@ -15,12 +15,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# Extra locations for static files (development only)
 STATICFILES_DIRS = [
-    BASE_DIR / "home/static",  # Any static folder in your apps
+    BASE_DIR / "home/static", 
 ]
-
-TAILWIND_APP_NAME = "theme"
 
 INTERNAL_IPS = [
     "127.0.0.1",
